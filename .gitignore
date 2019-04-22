@@ -1,1 +1,3 @@
-pet_images\*.jpg
+pet_images/*.jpg
+.idea/
+__pycache__/
