@@ -3,8 +3,8 @@
 # */AIPND/intropylab-classifying-images/check_images.py
 #                                                                             
 # TODO: 0. Fill in your information in the programming header below
-# PROGRAMMER:
-# DATE CREATED:
+# PROGRAMMER: GramYD
+# DATE CREATED: 2019/4/22 20:13
 # REVISED DATE:             <=(Date Revised - if any)
 # REVISED DATE: 05/14/2018 - added import statement that imports the print 
 #                           functions that can be used to check the lab
@@ -34,16 +34,40 @@ from print_functions_for_lab_checks import *
 def main():
     # TODO: 1. Define start_time to measure total program runtime by
     # collecting start time
-    start_time = None
+    """main() 分类程序的main函数
+    :variables:
+        @start_time:        程序开始时间
+        @end_time:          程序结束时间
+        @tot_time :         整体程序运行时间
+        @hours:             运行小时数
+        @minutes:           运行分钟数
+        @seconds:           运行秒数
+    sentences:
+        @sleep(75):      模拟程序运行
+
+    :return:
+        #no returns,but print
+    """
+    start_time = time()
     
     # TODO: 2. Define get_input_args() function to create & retrieve command
     # line arguments
     in_arg = get_input_args()
+    print("Command Line Arguments:\n"
+          "    dir = {}    "
+          "arch = {}    "
+          "dogfile = {}".format(in_arg.dir,in_arg.arch,in_arg.dogfile))
     
     # TODO: 3. Define get_pet_labels() function to create pet image labels by
     # creating a dictionary with key=filename and value=file label to be used
     # to check the accuracy of the classifier function
-    answers_dic = get_pet_labels()
+    answers_dic = get_pet_labels(in_arg.dir)
+    print("\nanswers_dic has {} key_value pairs.\nBelow are 10 of them:\n".format(len(answers_dic)))
+    for ct,key in enumerate(answers_dic):
+        if(ct >= 10):
+            break
+        print("%2d key: %-30s label: %-30s" %(ct+1,key,answers_dic[key]))
+
 
     # TODO: 4. Define classify_images() function to create the classifier 
     # labels with the classifier function using in_arg.arch, comparing the 
@@ -67,13 +91,17 @@ def main():
 
     # TODO: 1. Define end_time to measure total program runtime
     # by collecting end time
-    end_time = None
+    sleep(2)
+    end_time = time()
 
     # TODO: 1. Define tot_time to computes overall runtime in
     # seconds & prints it in hh:mm:ss format
-    tot_time = None
-    print("\n** Total Elapsed Runtime:", tot_time)
-
+    tot_time = end_time - start_time
+    hours = round(tot_time / 3600)
+    minutes = round((tot_time % 3600) / 60)
+    seconds = round((tot_time % 3600) % 60)
+    # print("\n** Total Elapsed Runtime: {}:{}:{}".format(hours,minutes,seconds))
+    print()
 
 
 # TODO: 2.-to-7. Define all the function below. Notice that the input 
@@ -83,25 +111,36 @@ def main():
 # you are able to achieve the desired outcomes with this lab.
 
 def get_input_args():
-    """
-    Retrieves and parses the command line arguments created and defined using
-    the argparse module. This function returns these arguments as an
-    ArgumentParser object. 
+    """just as the function_name says: 获取命令行输入的参数解析后放入数据结构中并返回
+    sunch as input:
+        python check_images.py --dir pet_images/ --arch vgg --dogfile dognames.txt
+        get --dir --arch --dogfile and parser deal with them
+    ArgumentParser object.
      3 command line arguments are created:
-       dir - Path to the pet image files(default- 'pet_images/')
-       arch - CNN model architecture to use for image classification(default-
+       --dir - Path to the pet image files(default- 'pet_images/')
+       --arch - CNN model architecture to use for image classification(default-
               pick any of the following vgg, alexnet, resnet)
-       dogfile - Text file that contains all labels associated to dogs(default-
+       --dogfile - Text file that contains all labels associated to dogs(default-
                 'dognames.txt'
     Parameters:
      None - simply using argparse module to create & store command line arguments
     Returns:
-     parse_args() -data structure that stores the command line arguments object  
+     parse_args() -data structure that stores the command line arguments object
     """
-    pass
+    # args解析器创建
+    parser = argparse.ArgumentParser()
+    # 添加参数 dir
+    parser.add_argument('--dir',type=str,default='pet_images/',help='path to the folder my_folder')
+    #添加参数 arch
+    parser.add_argument('--arch',type=str,default='vgg',help='choose a model from [vgg,resnet,alexnet]')
+    #添加参数 dogfile
+    parser.add_argument('--dogfile',type=str,default='dognames.txt',help='select the file which named dognames.txt')
+
+    #返回args 解析结果
+    return parser.parse_args()
 
 
-def get_pet_labels():
+def get_pet_labels(image_dir):
     """
     Creates a dictionary of pet labels based upon the filenames of the image 
     files. Reads in pet filenames and extracts the pet image labels from the 
@@ -114,7 +153,37 @@ def get_pet_labels():
      petlabels_dic - Dictionary storing image filename (as key) and Pet Image
                      Labels (as value)  
     """
-    pass
+    # 得到文件名列表
+    in_files = listdir(image_dir)
+    # 以key：filename value:lable 形式，存储当前目录所有图片的信息
+
+    #创建一个空的字典
+    petlabels_dic = dict()
+
+    for idx in range(0,len(in_files)):
+        if(in_files[idx][0] != "."):
+            #排除不是image的文件
+            image_name = in_files[idx].lower().split("_")
+            pet_label = ""
+            #获取label
+            for word in image_name:
+                if(word.isalpha()):
+                    pet_label += word + " "
+            #去除\n
+            pet_label = pet_label.strip()
+            if(in_files[idx] not in petlabels_dic):
+                petlabels_dic[in_files[idx]] = pet_label
+            else:
+                print("Warning: files exist in dictionary: {}".format(in_files[idx]))
+    return petlabels_dic
+
+
+
+
+
+
+
+
 
 
 def classify_images():
@@ -172,7 +241,8 @@ def adjust_results4_isadog():
                 text file's name)
     Returns:
            None - results_dic is mutable data type so no return needed.
-    """           
+    """
+
     pass
 
 
